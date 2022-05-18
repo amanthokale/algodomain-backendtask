@@ -13,12 +13,12 @@ const productSchema = mongoose.Schema({
   price:{
     type:String
   },
-  sellerName:{
+  sellername:{
     type:String
   },
 
 })
 
-const user = mongoose.model("User",userSchema)
+const product = mongoose.model("User",productSchema)
 
-module.exports=User;
+module.exports=product;
