@@ -11,6 +11,7 @@ app.use(express.json())
 // Before this an api for seller authentication and a collection for storing sellers separately should be created
 // Will store the sellers id in products created by them
 // JWT Authentication will give object id ((which i have passed directly in the apis))
+// Authentication is done using seller name
 
 app.post('/addproduct',async(req,res)=>{
   try {
@@ -59,7 +60,7 @@ app.post('/addproductmany',async(req,res)=>{
       }
   } catch (e) {
     console.log(e)
-    res.status(400).send("Unable to add Product Internal server error");
+    res.status(400).send("Internal server error");
   }
 })
 
@@ -73,7 +74,7 @@ app.get('/listproductseller',async(req,res)=>{
       }
   } catch (e) {
     console.log(e)
-    res.status(400).send("Unable to add Product Internal server error");
+    res.status(400).send("Internal server error");
   }
 })
 app.patch('/updateproduct:id',async(req,res)=>{
@@ -89,7 +90,7 @@ app.patch('/updateproduct:id',async(req,res)=>{
     }
   } catch (e) {
     console.log(e)
-    res.status(400).send("Unable to add Product Internal server error");
+    res.status(400).send("Internal server error");
   }
 })
 
@@ -103,28 +104,62 @@ app.delete('/deleteproduct:id',async(req,res)=>{
     }
     else if(sellername===a.sellername){
       let b = await Product.findByIdAndDelete(req.params.id);
+      // let b = await Product.deleteMany({});
       console.log(b)
-      res.status(200).send("note deleted successfully")
+      res.status(200).send("Product deleted successfully")
     }
   } catch (e) {
     console.log(e)
-    res.status(400).send("Unable to add Product Internal server error");
+    res.status(400).send("Internal server error");
   }
 })
 
-// CUSTOMER api
 
-app.get('/listproductcustomer',async(req,res)=>{
+
+// CUSTOMER api
+// Seller can also access the following routes
+
+app.get('/listproductname',async(req,res)=>{
   try {
     const {name,type,category,min,max}=req.body;
-    const a =await Product.find({type:type});
-    if(a.price===15000){
-    res.send(a)
-  }
+    console.log(req.body)
+    const a =await Product.find({name:name});
     console.log(a)
-  } catch (e) {
+    res.status(200).send(a)
+  }
+  catch (e) {
     console.log(e)
-    res.status(400).send("Unable to add Product Internal server error");
+    res.status(400).send("Internal server error");
+  }
+})
+
+app.get('/listproducttypecat',async(req,res)=>{
+  try {
+    const {name,type,category,min,max}=req.body;
+    console.log(req.body)
+    const a =await Product.find({type:type,category:category});
+    console.log(a)
+    res.status(200).send(a)
+  }
+  catch (e) {
+    console.log(e)
+    res.status(400).send("Internal server error");
+  }
+})
+
+
+
+app.get('/listproductprice',async(req,res)=>{
+  try {
+    const {name,type,category,min,max}=req.body;
+    console.log(req.body)
+    const a =await Product.find({price:{$gt:min,$lt:max}});
+    console.log(a)
+    res.status(200).send(a)
+  }
+  catch (e) {
+    console.log(e)
+    res.status(400).send("Internal server error");
   }
 })
 
