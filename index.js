@@ -2,10 +2,15 @@ require('./DB/con');
 const express = require('express');
 const app = express();
 const Product = require('./DB/productSchema');
+// const Seller = require('./DB/productSchema');
 const port = 5000;
 
 
 app.use(express.json())
+
+// Before this an api for seller authentication and a collection for storing sellers separately should be created
+// Will store the sellers id in products created by them
+// JWT Authentication will give object id ((which i have passed directly in the apis))
 
 app.post('/addproduct',async(req,res)=>{
   try {
@@ -71,21 +76,57 @@ app.get('/listproductseller',async(req,res)=>{
     res.status(400).send("Unable to add Product Internal server error");
   }
 })
-app.patch('/updateproduct',async(req,res)=>{
+app.patch('/updateproduct:id',async(req,res)=>{
   try {
-    const sellername=req.body.sellername;
-    const name = req.body.name;
-    const a =await Product.findOne({name:name,sellername:sellername});
-      if(a){
-        res.status(200).send(a);
-      }
+    const {name,type,category,price,sellername}=req.body;
+    console.log(req.params.id)
+    let a = await Product.findById(req.params.id);
+    console.log(sellername)
+    if(a.sellername===sellername){
+      let b = await Product.findByIdAndUpdate(req.params.id,{name:name,type:type,category:category,price:price,sellername:sellername},{new:true})
+      console.log(b)
+      res.status(200).send(b);
+    }
   } catch (e) {
     console.log(e)
     res.status(400).send("Unable to add Product Internal server error");
   }
 })
 
+app.delete('/deleteproduct:id',async(req,res)=>{
+  try {
+    const sellername = req.body.sellername;
+    let a = await Product.findById(req.params.id);
+    console.log(sellername)
+    if(!a){
+      res.status(400).send("Product not found")
+    }
+    else if(sellername===a.sellername){
+      let b = await Product.findByIdAndDelete(req.params.id);
+      console.log(b)
+      res.status(200).send("note deleted successfully")
+    }
+  } catch (e) {
+    console.log(e)
+    res.status(400).send("Unable to add Product Internal server error");
+  }
+})
 
+// CUSTOMER api
+
+app.get('/listproductcustomer',async(req,res)=>{
+  try {
+    const {name,type,category,min,max}=req.body;
+    const a =await Product.find({type:type});
+    if(a.price===15000){
+    res.send(a)
+  }
+    console.log(a)
+  } catch (e) {
+    console.log(e)
+    res.status(400).send("Unable to add Product Internal server error");
+  }
+})
 
 
 app.listen(port,()=>{
